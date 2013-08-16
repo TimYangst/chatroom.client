@@ -64,9 +64,6 @@ namespace chatroom.client
 
         private void BeginToSend(object sender, RoutedEventArgs e)
         {
-            (sender as Button).IsEnabled = false;
-            (this.FindName("b_stop") as Button).IsEnabled = true;
-
             if (workThread == null)
             {
                 workThread = new Thread(runSender);
@@ -76,13 +73,15 @@ namespace chatroom.client
             {
                 workThread.Resume();
             }
+            (sender as Button).IsEnabled = false;
+            (this.FindName("b_stop") as Button).IsEnabled = true;
         }
 
         private void EndToSend(object sender, RoutedEventArgs e)
         {
+            workThread.Suspend();
             (sender as Button).IsEnabled = false;
             (this.FindName("b_start") as Button).IsEnabled = true;
-            workThread.Suspend();
         }
 
     }
