@@ -1,4 +1,5 @@
-﻿using System;
+﻿using chatroom.client.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -12,5 +13,21 @@ namespace chatroom.client
     /// </summary>
     public partial class App : Application
     {
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            this.MainWindow = new MainWindow();
+            MainWindowViewModel MainWindowViewModel = new MainWindowViewModel();
+            EventHandler handler =null;
+            handler = delegate
+            {
+                MainWindowViewModel.RequestClose -= handler;
+                MainWindow.Close();
+            };
+            MainWindowViewModel.RequestClose += handler;
+            MainWindow.DataContext = MainWindowViewModel;
+            MainWindow.Show();
+        }
     }
+    
 }
