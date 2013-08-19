@@ -23,7 +23,7 @@
                 </DockPanel>
                 <DockPanel DockPanel.Dock="Top" Height="50">
                     <Button x:Name="b_start" Width="250" Content="Send" Command="{Binding Path=StartCommand}"></Button>
-                    <Button x:Name="b_stop" Content="end" IsEnabled="False" Command="{Binding Path=StopCommand}"></Button>
+                    <Button x:Name="b_stop" Content="Suspend" Command="{Binding Path=StopCommand}"></Button>
                 </DockPanel>
             </DockPanel>
         </DockPanel>

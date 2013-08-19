@@ -57,7 +57,7 @@ namespace chatroom.client.ViewModel
             }
         }
         private ICommand _stopCommand = null;
-        public ICommand StopComman
+        public ICommand StopCommand
         {
             get
             {
@@ -76,7 +76,11 @@ namespace chatroom.client.ViewModel
 
         private void AbortThread()
         {
-            if (workThread != null) workThread.Abort();
+            if (workThread != null && workThread.IsAlive)
+            {
+                workThread.Resume();
+                workThread.Abort();
+            }
         }
 
 
@@ -86,6 +90,7 @@ namespace chatroom.client.ViewModel
             if (workThread == null)
             {
                 workThread = new Thread(runSender);
+                workThread.IsBackground = true;
                 workThread.Start();
             }
             else
