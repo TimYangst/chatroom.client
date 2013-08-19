@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 
 namespace chatroom.client.ViewModel
 {
@@ -35,7 +37,7 @@ namespace chatroom.client.ViewModel
             get
             {
                 if (_closeCommand == null)
-                    _closeCommand = new RelayCommand(param => this.OnRequestClose());
+                    _closeCommand = new RelayCommand(this.OnRequestClose);
 
                 return _closeCommand;
             }

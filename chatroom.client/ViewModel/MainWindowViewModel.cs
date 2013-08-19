@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows.Input;
 using System.Net;
 using System.Net.Sockets;
+using GalaSoft.MvvmLight.Command;
 
 
 namespace chatroom.client.ViewModel
@@ -22,7 +23,7 @@ namespace chatroom.client.ViewModel
             get { return _logs; }
             set {
                 this._logs = value; 
-                OnPropertyChanged("Logs"); 
+                RaisePropertyChanged("Logs"); 
             }
         }
 
@@ -35,7 +36,7 @@ namespace chatroom.client.ViewModel
                 if (this._started != value) 
                 {
                     this._started = value; 
-                    OnPropertyChanged("Started");
+                    RaisePropertyChanged("Started");
                 } 
             }
         }
@@ -48,8 +49,8 @@ namespace chatroom.client.ViewModel
                 if (_startCommand == null)
                 {
                     _startCommand = new RelayCommand(
-                        param => BeginToSend(),
-                        param => (!this.Started)           
+                        this.BeginToSend,
+                        () => (!this.Started)           
                         );
                     
                 }
@@ -64,8 +65,8 @@ namespace chatroom.client.ViewModel
                 if (_stopCommand == null)
                 {
                     _stopCommand = new RelayCommand(
-                        param => StopToSend(),
-                        param => (this.Started)
+                        this.StopToSend,
+                        () => (this.Started)
                         );
                 }
                 return _stopCommand;
@@ -87,6 +88,7 @@ namespace chatroom.client.ViewModel
 
         private void BeginToSend()
         {
+            this.Started = true;
             if (workThread == null)
             {
                 workThread = new Thread(runSender);
@@ -97,12 +99,13 @@ namespace chatroom.client.ViewModel
             {
                 workThread.Resume();
             }
-            this.Started = true;
+           
         }
         private void StopToSend()
         {
-            workThread.Suspend();
             this.Started = false;
+            workThread.Suspend();
+            
         }
 
         private void SendUDP(string hostNameOrAddress, int destinationPort, string data, int count)
