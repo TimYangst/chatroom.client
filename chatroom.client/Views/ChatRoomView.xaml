@@ -25,7 +25,17 @@
             </DockPanel>
 			<DockPanel DockPanel.Dock="Top">
 				<DockPanel DockPanel.Dock="Top" Height="400">
-					<RichTextBox  x:Name="m_messages" Margin="5" DockPanel.Dock="Top" IsReadOnly="True" ></RichTextBox>
+                    <ListView ItemsSource="{Binding MessageList}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Message" DisplayMemberBinding="{Binding content}"/>
+                                <GridViewColumn Header="UserName" DisplayMemberBinding="{Binding username}"/>
+                                <GridViewColumn Header="Time" DisplayMemberBinding="{Binding time}"/>
+                            </GridView>
+                            
+                        </ListView.View>
+                    </ListView>
+					<!--<RichTextBox  x:Name="m_messages" Margin="5" DockPanel.Dock="Top" IsReadOnly="True" ></RichTextBox>-->
 				</DockPanel>
 				<DockPanel DockPanel.Dock="Top">
 					<DockPanel DockPanel.Dock="Left" Width="500">
