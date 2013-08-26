@@ -5,21 +5,189 @@ using System.Windows.Data;
 using System.ComponentModel;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
+using System.Collections.ObjectModel;
+using chatroom.client.Model;
+using System.Runtime.Remoting.Messaging;
+using System.Net;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading;
+
 
 namespace chatroom.client.ViewModel
 {
-	public class ChatRoomViewModel : WorkspaceViewModel
-	{
-		public ChatRoomViewModel()
-		{
-			
-		}
+    public class ChatRoomViewModel : WorkspaceViewModel
+    {
+        IntervalTaskRuntime heartBeatRuntime;
+
+        private long lastTime = 0;
+
+        public ChatRoomViewModel()
+        {
+            FetchMessageDelegate();
+            InitHeartBeatTimer();
+        }
+
+        private void InitHeartBeatTimer()
+        {
+            DateTime start = DateTime.Now.AddSeconds(5);
+            TimeSpan interval = TimeSpan.FromSeconds(10);
+            heartBeatRuntime = TaskExecuter.ExecuteIntervalTask(start, interval, SendHeartBeat, ReceivedHeartBeatResponse);
+        }
+
+        private string SendHeartBeat()
+        {
+
+            string rst = sendRequest(String.Format("http://10.172.76.226:8888/heartbeat?lasttime={0}&username={1}",lastTime,"t-tiyan"), null, "get");
+            return rst;
+        }
+
+        private void ReceivedHeartBeatResponse(string rst)
+        {
+            Console.WriteLine(string.Format("{0} => {1}", "receive", rst));
+            if (rst != null)
+            {
+                JArray ja = (JArray)JsonConvert.DeserializeObject(rst);
+                foreach (var obj in ja)
+                {
+                    AddToMessageList(obj as JObject,true);
+                }
+
+            }
+        }
+
+        HashSet<long> messageset = new HashSet<long>();
+        private static object x = new object();
+        private void AddToMessageList(JObject obj,Boolean updatelast)
+        {
+            lock (x)
+            {
+                long time = long.Parse(obj["time"].ToString());
+                if (!messageset.Contains(time))
+                {
+                    this.MessageList.Add(new Message(obj["content"].ToString(), obj["username"].ToString(), obj["time"].ToString()));
+                    messageset.Add(time);
+                }
+                if (updatelast && time > lastTime) lastTime = time;
+            }
+        }
+
+
+        private string sendRequest(string url, Dictionary<string, string> Paras, string method)
+        {
+            Console.WriteLine("send request => " + url);
+            string content = "";
+            try
+            {
+                Encoding encoding = Encoding.UTF8;
+                HttpWebRequest req = HttpWebRequest.Create(url) as HttpWebRequest;
+                req.Timeout = 20 * 1000;
+                if ("POST" == method || "post" == method)
+                {
+                    req.Method = "POST";
+                    req.ContentType = "application/x-www-form-urlencoded";
+
+                    StringBuilder sb = new StringBuilder();
+                    bool first = true;
+                    foreach (string key in Paras.Keys)
+                    {
+                        if (!first) sb.Append('&');
+                        sb.Append(String.Format("{0}={1}", key, Paras[key]));
+                        first = false;
+                    }
+                    string querystring = sb.ToString();
+                    byte[] bs = Encoding.ASCII.GetBytes(querystring);
+                    req.ContentLength = bs.Length;
+                    using (Stream reqStream = req.GetRequestStream())
+                    {
+                        reqStream.Write(bs, 0, bs.Length);
+                        reqStream.Close();
+                    }
+                }
+                var resp = req.GetResponse() as HttpWebResponse;
+                var stream = resp.GetResponseStream();
+                byte[] buffer = new byte[256];
+                StreamReader reader = new StreamReader(stream, encoding);
+                content = reader.ReadToEnd();
+                resp.Close();
+            }
+            catch (WebException we)
+            {
+                Console.WriteLine("Get Response StatusCode: {0}({1})", we.Status, (int)we.Status);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return content;
+        }
+
+
+        private string fetchMessageList()
+        {
+            string rst = sendRequest("http://10.172.76.226:8888/list", null, "get");
+            return rst;
+        }
+
+        private void FetchMessageDelegate()
+        {
+            Func<string> func = fetchMessageList;
+            func.BeginInvoke(FetchMessageCallback, null);
+
+        }
+
+
+        private void FetchMessageCallback(IAsyncResult ar)
+        {
+            string str = (string)ar.AsyncState;
+            Func<string> func = (ar as AsyncResult).AsyncDelegate as Func<string>;
+            try
+            {
+                string rst = func.EndInvoke(ar);
+                Console.WriteLine(string.Format("{0} => {1}", str, rst));
+                if (rst != null)
+                {
+                    JArray ja = (JArray)JsonConvert.DeserializeObject(rst);
+                    foreach (var obj in ja)
+                    {
+                        AddToMessageList(obj as JObject,true);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format("{0} => Error: {1}", str, ex.Message));
+            }
+        }
+
+
+        private ObservableCollection<Message> _messageList = null;
+        public ObservableCollection<Message> MessageList
+        {
+            get
+            {
+                if (_messageList == null) _messageList = new AsyncObservableCollection<Message>();
+                return _messageList;
+            }
+            set
+            {
+                this._messageList = value;
+                RaisePropertyChanged("MessageList");
+            }
+        }
+
         private string _message = "";
-        public string Message {
-            get {
+        public string Message
+        {
+            get
+            {
                 return _message;
             }
-            set {
+            set
+            {
                 if (_message == value) return;
                 _message = value;
                 RaisePropertyChanged("Message");
@@ -34,14 +202,52 @@ namespace chatroom.client.ViewModel
             }
             else
             {
+                String msg = this.Message;
                 this.Message = "";
-                Console.Out.WriteLine(this.Message);
+                SendMessageDelegate(msg);
+            }
+        }
+
+        private string sendMessageRequest(string msg)
+        {
+            Dictionary<string, string> paras = new Dictionary<string, string>();
+            paras["username"] = "t-tiyan";
+            paras["content"] = msg;
+            string rst = sendRequest("http://10.172.76.226:8888/post", paras, "post");
+            return rst;
+        }
+
+        private void SendMessageDelegate(string msg)
+        {
+            Func<string, string> func = sendMessageRequest;
+            func.BeginInvoke(msg, SendMessageCallback, null);
+        }
+
+        private void SendMessageCallback(IAsyncResult ar)
+        {
+            string str = (string)ar.AsyncState;
+            Func<string, string> func = (ar as AsyncResult).AsyncDelegate as Func<string, string>;
+            try
+            {
+                string rst = func.EndInvoke(ar);
+                Console.WriteLine(string.Format("{0} => {1}", str, rst));
+                if (rst != null)
+                {
+                    JObject obj = (JObject)JsonConvert.DeserializeObject(rst);
+                    AddToMessageList(obj,false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format("{0} => Error: {1}", str, ex.Message));
             }
         }
 
         private ICommand _sendMessage = null;
-        public ICommand SendMessage {
-            get {
+        public ICommand SendMessage
+        {
+            get
+            {
                 if (_sendMessage == null) _sendMessage = new RelayCommand(
                     this.sendMessage
                     );
@@ -49,6 +255,6 @@ namespace chatroom.client.ViewModel
             }
         }
 
-		
-	}
+
+    }
 }
