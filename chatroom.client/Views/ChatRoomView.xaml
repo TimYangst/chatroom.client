@@ -13,22 +13,12 @@
 
 	<Grid x:Name="LayoutRoot" DataContext="{Binding Source={StaticResource ChatRoomViewModelDataSource}}">
 		<DockPanel>
-		 <DockPanel DockPanel.Dock="Top" KeyboardNavigation.TabNavigation="None">
-                <Menu KeyboardNavigation.TabNavigation="Cycle">
-                    <MenuItem Header="_File">
-                        <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
-                    </MenuItem>
-                    <MenuItem Header="_Edit" />
-                    <MenuItem Header="_Options" />
-                    <MenuItem Header="_Help" />
-                </Menu>
-            </DockPanel>
 			<DockPanel DockPanel.Dock="Top">
 				<DockPanel DockPanel.Dock="Top" Height="400">
                     <ListView ItemsSource="{Binding MessageList}">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Message" DisplayMemberBinding="{Binding content}"/>
+                                <GridViewColumn Header="Message" Width="200" DisplayMemberBinding="{Binding content}"/>
                                 <GridViewColumn Header="UserName" DisplayMemberBinding="{Binding username}"/>
                                 <GridViewColumn Header="Time" DisplayMemberBinding="{Binding time}"/>
                             </GridView>

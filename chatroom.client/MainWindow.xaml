@@ -7,7 +7,21 @@
 
 
     <Grid x:Name="LayoutRoot">
-        <View:ChatRoomView></View:ChatRoomView>
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top" KeyboardNavigation.TabNavigation="None">
+                <Menu KeyboardNavigation.TabNavigation="Cycle">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
+                    </MenuItem>
+                    <MenuItem Header="_Edit" />
+                    <MenuItem Header="_Options" />
+                    <MenuItem Header="_Help" />
+                </Menu>
+            </DockPanel>
+            <DockPanel DockPanel.Dock ="Top">
+                <View:ChatRoomView/>
+            </DockPanel>
+        </DockPanel>
         <!--
         <DockPanel>
             <DockPanel DockPanel.Dock="Top" KeyboardNavigation.TabNavigation="None">

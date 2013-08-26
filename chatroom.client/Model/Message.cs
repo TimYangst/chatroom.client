@@ -7,14 +7,21 @@ namespace chatroom.client.Model
 {
     public class Message
     {
-        public Message(string content, string username)
+        public Message(string content, string username , string time)
         {
             this.content = content;
             this.username = username;
-            this.time = (long)(new DateTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds * 1000;
+            this._time = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime().AddMilliseconds(long.Parse(time)); 
+            
         }
         public string content {get;set;}
         public string username {get;set;}
-        public long time {get;set;}
+
+        private DateTime _time;
+        public String time {
+            get{
+                return _time.ToLongDateString();
+            }
+        }
     }
 }
