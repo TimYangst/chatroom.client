@@ -17,70 +17,83 @@ using System.Threading;
 
 namespace chatroom.client.ViewModel
 {
-	public class ChatRoomViewModel : WorkspaceViewModel
-	{
+    public class ChatRoomViewModel : WorkspaceViewModel
+    {
         IntervalTaskRuntime heartBeatRuntime;
 
         private long lastTime = 0;
 
-		public ChatRoomViewModel()
-		{
+        public ChatRoomViewModel()
+        {
             FetchMessageDelegate();
             InitHeartBeatTimer();
-		}
+        }
 
         private void InitHeartBeatTimer()
         {
             DateTime start = DateTime.Now.AddSeconds(5);
-            TimeSpan interval = TimeSpan.FromSeconds(5);
-            heartBeatRuntime = TaskExecuter.ExecuteIntervalTask(start,interval,SendHeartBeat, ReceivedHeartBeatResponse);
+            TimeSpan interval = TimeSpan.FromSeconds(10);
+            heartBeatRuntime = TaskExecuter.ExecuteIntervalTask(start, interval, SendHeartBeat, ReceivedHeartBeatResponse);
         }
 
-        private string SendHeartBeat() 
+        private string SendHeartBeat()
         {
 
-            string rst = sendRequest("http://10.172.76.226:8888/heartbeat?lasttime=" + lastTime,null,"get"); 
+            string rst = sendRequest(String.Format("http://10.172.76.226:8888/heartbeat?lasttime={0}&username={1}",lastTime,"t-tiyan"), null, "get");
             return rst;
         }
 
         private void ReceivedHeartBeatResponse(string rst)
         {
-            Console.WriteLine(string.Format("{0} => {1}","receive", rst));
+            Console.WriteLine(string.Format("{0} => {1}", "receive", rst));
             if (rst != null)
             {
                 JArray ja = (JArray)JsonConvert.DeserializeObject(rst);
                 foreach (var obj in ja)
                 {
-                    AddToMessageList(obj as JObject);
+                    AddToMessageList(obj as JObject,true);
                 }
 
             }
         }
-        private void AddToMessageList(JObject obj)
+
+        HashSet<long> messageset = new HashSet<long>();
+        private static object x = new object();
+        private void AddToMessageList(JObject obj,Boolean updatelast)
         {
-            this.MessageList.Add(new Message(obj["content"].ToString(), obj["username"].ToString(), obj["time"].ToString()));
-            long time = long.Parse(obj["time"].ToString());
-            if (time > lastTime) lastTime = time;
+            lock (x)
+            {
+                long time = long.Parse(obj["time"].ToString());
+                if (!messageset.Contains(time))
+                {
+                    this.MessageList.Add(new Message(obj["content"].ToString(), obj["username"].ToString(), obj["time"].ToString()));
+                    messageset.Add(time);
+                }
+                if (updatelast && time > lastTime) lastTime = time;
+            }
         }
 
 
-        private string sendRequest(string url, Dictionary<string, string> Paras,string method)
+        private string sendRequest(string url, Dictionary<string, string> Paras, string method)
         {
             Console.WriteLine("send request => " + url);
             string content = "";
-            try{
+            try
+            {
                 Encoding encoding = Encoding.UTF8;
                 HttpWebRequest req = HttpWebRequest.Create(url) as HttpWebRequest;
                 req.Timeout = 20 * 1000;
                 if ("POST" == method || "post" == method)
                 {
+                    req.Method = "POST";
                     req.ContentType = "application/x-www-form-urlencoded";
+
                     StringBuilder sb = new StringBuilder();
                     bool first = true;
-                    foreach (string key in Paras.Keys) 
+                    foreach (string key in Paras.Keys)
                     {
                         if (!first) sb.Append('&');
-                        sb.Append(String.Format("{0}={1}",key,Paras[key]));
+                        sb.Append(String.Format("{0}={1}", key, Paras[key]));
                         first = false;
                     }
                     string querystring = sb.ToString();
@@ -98,7 +111,7 @@ namespace chatroom.client.ViewModel
                 StreamReader reader = new StreamReader(stream, encoding);
                 content = reader.ReadToEnd();
                 resp.Close();
-              }
+            }
             catch (WebException we)
             {
                 Console.WriteLine("Get Response StatusCode: {0}({1})", we.Status, (int)we.Status);
@@ -106,7 +119,8 @@ namespace chatroom.client.ViewModel
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-            } 
+            }
+
             return content;
         }
 
@@ -124,8 +138,8 @@ namespace chatroom.client.ViewModel
 
         }
 
-        
-        private void FetchMessageCallback( IAsyncResult ar)
+
+        private void FetchMessageCallback(IAsyncResult ar)
         {
             string str = (string)ar.AsyncState;
             Func<string> func = (ar as AsyncResult).AsyncDelegate as Func<string>;
@@ -133,38 +147,47 @@ namespace chatroom.client.ViewModel
             {
                 string rst = func.EndInvoke(ar);
                 Console.WriteLine(string.Format("{0} => {1}", str, rst));
-                if (rst != null) {
+                if (rst != null)
+                {
                     JArray ja = (JArray)JsonConvert.DeserializeObject(rst);
-                    foreach (var obj  in ja) {
-                        AddToMessageList(obj as JObject);
+                    foreach (var obj in ja)
+                    {
+                        AddToMessageList(obj as JObject,true);
                     }
 
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(string.Format("{0} => Error: {1}", str, ex.Message));
             }
         }
 
 
         private ObservableCollection<Message> _messageList = null;
-        public ObservableCollection<Message> MessageList {
-            get {
+        public ObservableCollection<Message> MessageList
+        {
+            get
+            {
                 if (_messageList == null) _messageList = new AsyncObservableCollection<Message>();
                 return _messageList;
             }
-            set {
+            set
+            {
                 this._messageList = value;
                 RaisePropertyChanged("MessageList");
             }
         }
 
         private string _message = "";
-        public string Message {
-            get {
+        public string Message
+        {
+            get
+            {
                 return _message;
             }
-            set {
+            set
+            {
                 if (_message == value) return;
                 _message = value;
                 RaisePropertyChanged("Message");
@@ -203,15 +226,15 @@ namespace chatroom.client.ViewModel
         private void SendMessageCallback(IAsyncResult ar)
         {
             string str = (string)ar.AsyncState;
-            Func<string,string> func = (ar as AsyncResult).AsyncDelegate as Func<string,string>;
+            Func<string, string> func = (ar as AsyncResult).AsyncDelegate as Func<string, string>;
             try
             {
                 string rst = func.EndInvoke(ar);
                 Console.WriteLine(string.Format("{0} => {1}", str, rst));
                 if (rst != null)
                 {
-                    JObject obj = (JObject )JsonConvert.DeserializeObject(rst);
-                    AddToMessageList(obj);
+                    JObject obj = (JObject)JsonConvert.DeserializeObject(rst);
+                    AddToMessageList(obj,false);
                 }
             }
             catch (Exception ex)
@@ -221,8 +244,10 @@ namespace chatroom.client.ViewModel
         }
 
         private ICommand _sendMessage = null;
-        public ICommand SendMessage {
-            get {
+        public ICommand SendMessage
+        {
+            get
+            {
                 if (_sendMessage == null) _sendMessage = new RelayCommand(
                     this.sendMessage
                     );
@@ -230,6 +255,6 @@ namespace chatroom.client.ViewModel
             }
         }
 
-		
-	}
+
+    }
 }

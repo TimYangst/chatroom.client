@@ -72,6 +72,8 @@
     <Compile Include="Model\Message.cs" />
     <Compile Include="ViewModel\AsyncObservableCollection.cs" />
     <Compile Include="ViewModel\ChatRoomViewModel.cs" />
+    <Compile Include="ViewModel\IntervalTaskRuntime.cs" />
+    <Compile Include="ViewModel\TaskExecuter.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
