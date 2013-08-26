@@ -49,7 +49,17 @@ namespace chatroom.client.ViewModel
             }
         }
 
-        public ObservableCollection<Message> MessageList = new ObservableCollection<Message>();
+        private ObservableCollection<Message> _messageList = null;
+        public ObservableCollection<Message> MessageList {
+            get {
+                if (_messageList == null) _messageList = new ObservableCollection<Message>();
+                return _messageList;
+            }
+            set {
+                this._messageList = value;
+                RaisePropertyChanged("MessageList");
+            }
+        }
 
         private string _message = "";
         public string Message {
