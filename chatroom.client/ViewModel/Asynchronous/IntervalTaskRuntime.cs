@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Runtime.Remoting.Messaging;
 
-namespace chatroom.client.ViewModel
+namespace chatroom.client.ViewModel.Asynchronous
 {
     public class IntervalTaskRuntime
     {
@@ -44,6 +44,7 @@ namespace chatroom.client.ViewModel
                 Console.WriteLine(string.Format("{0} => Error: {1}", str, ex.Message));
             }
         }
+        
         private delegate void TaskRunner(DateTime startTime, TimeSpan interval);
         public void Invoke(DateTime startTime, TimeSpan interval)
         {

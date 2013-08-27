@@ -9,6 +9,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
+using chatroom.client.Model;
+using System.Collections.Specialized;
 
 namespace chatroom.client
 {
@@ -20,8 +23,19 @@ namespace chatroom.client
 		public ChatRoomView()
 		{
 			this.InitializeComponent();
-			
-		    
+            
+            ListView list = this.FindName("m_MessageList") as ListView;
+            ObservableCollection<Message> collection = list.ItemsSource as ObservableCollection<Message>;
+            collection.CollectionChanged += OnCollectionChanged;
 		}
+
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            ListView listView = this.FindName("m_MessageList") as ListView;
+            listView.ScrollIntoView(listView.Items[listView.Items.Count - 1]);
+        }
+
+
+      
 	}
 }

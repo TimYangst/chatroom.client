@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace chatroom.client.ViewModel
+namespace chatroom.client.ViewModel.Asynchronous
 {
     public class AsyncObservableCollection<T> : ObservableCollection<T>
     {

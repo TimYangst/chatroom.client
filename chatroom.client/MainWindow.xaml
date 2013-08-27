@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:chatroom.client.ViewModel"
         xmlns:View="clr-namespace:chatroom.client"
-        Title="MainWindow" Height="540" Width="720">
+        Title="MainWindow" Height="810" Width="720">
 
 
     <Grid x:Name="LayoutRoot">
