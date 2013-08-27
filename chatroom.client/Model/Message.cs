@@ -20,7 +20,7 @@ namespace chatroom.client.Model
         private DateTime _time;
         public String time {
             get{
-                return _time.ToLongTimeString();
+                return  _time.ToLongDateString()+ " " +_time.ToLongTimeString();
             }
         }
     }
