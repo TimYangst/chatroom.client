@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using chatroom.client.ViewModel.Http;
 using chatroom.client.ViewModel.Asynchronous;
+using chatroom.client.ViewModel.Configuration;
 
 
 namespace chatroom.client.ViewModel
@@ -45,14 +46,20 @@ namespace chatroom.client.ViewModel
         private void InitHeartBeatTimer()
         {
             DateTime start = DateTime.Now.AddSeconds(5);
-            TimeSpan interval = TimeSpan.FromSeconds(10);
+            TimeSpan interval = TimeSpan.FromMilliseconds(ConfigurationManager.HeartBeatInterval);
             heartBeatRuntime = AsyncTaskExecuter.ExecuteIntervalTask(start, interval, SendHeartBeat, ReceivedHeartBeatResponse);
         }
 
         private string SendHeartBeat()
         {
 
-            string rst = HttpRequestSender.sendRequest(String.Format("http://10.172.76.226:8888/heartbeat?lasttime={0}&username={1}", LastSynchronizationTime, "t-tiyan"), null, "get");
+            string rst = HttpRequestSender.sendRequest(
+                String.Format("{0}/heartbeat?lasttime={1}&username={2}",
+                    ConfigurationManager.ServerUrl, 
+                    LastSynchronizationTime,
+                    ConfigurationManager.UserName), 
+                null,
+                "get");
             return rst;
         }
 
@@ -88,7 +95,7 @@ namespace chatroom.client.ViewModel
 
         private string fetchMessageList()
         {
-            string rst = HttpRequestSender.sendRequest("http://10.172.76.226:8888/list", null, "get");
+            string rst = HttpRequestSender.sendRequest(String.Format("{0}/list",ConfigurationManager.ServerUrl), null, "get");
             return rst;
         }
 
@@ -210,9 +217,9 @@ namespace chatroom.client.ViewModel
         private string sendMessageRequest(string msg)
         {
             Dictionary<string, string> paras = new Dictionary<string, string>();
-            paras["username"] = "t-tiyan";
+            paras["username"] = ConfigurationManager.UserName;
             paras["content"] = msg;
-            string rst = HttpRequestSender.sendRequest("http://10.172.76.226:8888/post", paras, "post");
+            string rst = HttpRequestSender.sendRequest(String.Format("{0}/post",ConfigurationManager.ServerUrl), paras, "post");
             return rst;
         }
 
