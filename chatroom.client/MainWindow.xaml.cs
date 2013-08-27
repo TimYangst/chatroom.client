@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using chatroom.client.ViewModel;
 
 
 namespace chatroom.client
@@ -28,6 +29,5 @@ namespace chatroom.client
            InitializeComponent();
            
         }
-
     }
 }
