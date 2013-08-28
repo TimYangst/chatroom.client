@@ -32,7 +32,7 @@ namespace chatroom.client.ViewModel.Http
                         first = false;
                     }
                     string querystring = sb.ToString();
-                    byte[] bs = Encoding.ASCII.GetBytes(querystring);
+                    byte[] bs = Encoding.UTF8.GetBytes(querystring);
                     req.ContentLength = bs.Length;
                     using (Stream reqStream = req.GetRequestStream())
                     {
