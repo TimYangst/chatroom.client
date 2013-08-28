@@ -6,9 +6,13 @@ obj/
 */obj/**/*
 bin
 obj
+*.suo
 
 /chatroom.client/obj/Debug/*
 /chatroom.client/obj/Debug/chatroom.client_MarkupCompile.i.cache
 
 /chatroom.client/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 /chatroom.client/obj/Debug/MainWindow.g.i.cs
+/chatroom.client.v11.suo
+
+*.suo
