@@ -2,6 +2,13 @@
 */obj/
 bin/
 obj/
-*/obj
-*/bin
+*/bin/**/*
+*/obj/**/*
+bin
+obj
 
+/chatroom.client/obj/Debug/*
+/chatroom.client/obj/Debug/chatroom.client_MarkupCompile.i.cache
+
+/chatroom.client/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+/chatroom.client/obj/Debug/MainWindow.g.i.cs

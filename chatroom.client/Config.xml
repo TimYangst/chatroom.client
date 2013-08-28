@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <chatroom>
-  <server>http://10.172.76.226:8888</server>
+  <server>http://10.172.76.226:9999</server>
   <heartbeatinterval>5000</heartbeatinterval>
 </chatroom>

@@ -31,7 +31,6 @@ namespace chatroom.client.ViewModel
             {
                 return;
             }
-            AsyncFetchMessageHistory();
             InitHeartBeatTimer();
         }
 
@@ -45,7 +44,7 @@ namespace chatroom.client.ViewModel
 
         private void InitHeartBeatTimer()
         {
-            DateTime start = DateTime.Now.AddSeconds(5);
+            DateTime start = DateTime.Now.AddSeconds(1);
             TimeSpan interval = TimeSpan.FromMilliseconds(ConfigurationManager.HeartBeatInterval);
             heartBeatRuntime = AsyncTaskExecuter.ExecuteIntervalTask(start, interval, SendHeartBeat, ReceivedHeartBeatResponse);
         }
@@ -68,54 +67,15 @@ namespace chatroom.client.ViewModel
             Console.WriteLine(string.Format("{0} => {1}", "receive", rst));
             if (rst != null)
             {
-                JArray ja = (JArray)JsonConvert.DeserializeObject(rst);
-                foreach (var obj in ja)
+                lock (x)
                 {
-                    AddToMessageList(obj as JObject, true);
-                }
-
-            }
-        }
-
-        #endregion
-
-        #region AsyncFetchMessageHistory
-
-        private void AsyncFetchMessageHistory()
-        {
-            try
-            {
-                AsyncTaskExecuter.ExecuteTask(fetchMessageList, fetchMessageListCallback);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Fetch Message History failed => {0}", e.ToString());
-            }
-        }
-
-        private string fetchMessageList()
-        {
-            string rst = HttpRequestSender.sendRequest(String.Format("{0}/list",ConfigurationManager.ServerUrl), null, "get");
-            return rst;
-        }
-
-        private void fetchMessageListCallback(string messagelist)
-        {
-            try
-            {
-                if (messagelist != null)
-                {
-                    JArray ja = (JArray)JsonConvert.DeserializeObject(messagelist);
+                    JArray ja = (JArray)JsonConvert.DeserializeObject(rst);
                     foreach (var obj in ja)
                     {
                         AddToMessageList(obj as JObject, true);
                     }
-
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format("parse json faild => Error: {1}", ex.Message));
+
             }
         }
 
@@ -127,8 +87,7 @@ namespace chatroom.client.ViewModel
         private static object x = new object();
         private void AddToMessageList(JObject obj, Boolean updatelast)
         {
-            lock (x)
-            {
+        
                 long time = long.Parse(obj["time"].ToString());
                 if (!messageset.Contains(time))
                 {
@@ -138,7 +97,7 @@ namespace chatroom.client.ViewModel
                     
                 }
                 if (updatelast && time > LastSynchronizationTime) LastSynchronizationTime = time;
-            }
+           
         }
 
         private ObservableCollection<Message> _messageList = null;
@@ -227,10 +186,13 @@ namespace chatroom.client.ViewModel
         {
             try
             {
-                if (msg != null)
+                lock (x)
                 {
-                    JObject obj = (JObject)JsonConvert.DeserializeObject(msg);
-                    AddToMessageList(obj, false);
+                    if (msg != null)
+                    {
+                        JObject obj = (JObject)JsonConvert.DeserializeObject(msg);
+                        AddToMessageList(obj, false);
+                    }
                 }
             }
             catch (Exception ex)
