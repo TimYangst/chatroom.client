@@ -29,7 +29,7 @@
 				</DockPanel>
 				<DockPanel DockPanel.Dock="Top">
 					<DockPanel DockPanel.Dock="Left" Width="500">
-						<TextBox x:Name="m_message" Text="{Binding Path=MessageToSend, Mode=TwoWay}" Margin="5"></TextBox>
+						<TextBox x:Name="m_message" Text="{Binding Path=MessageToSend, Mode=TwoWay}" Margin="5" KeyDown="m_message_KeyDown" ></TextBox>
 					</DockPanel>
 					<DockPanel DockPanel.Dock="Left">
                         <Button Content="Send" Margin="5" Command="{Binding Path=SendMessage}" ></Button>
