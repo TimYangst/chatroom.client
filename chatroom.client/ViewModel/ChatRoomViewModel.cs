@@ -150,7 +150,7 @@ namespace chatroom.client.ViewModel
             }
         }
 
-        private void CheckAndSendMessage()
+        public void CheckAndSendMessage()
         {
             if (this.MessageToSend == "")
             {

@@ -12,3 +12,4 @@ obj
 
 /chatroom.client/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 /chatroom.client/obj/Debug/MainWindow.g.i.cs
+*.suo
