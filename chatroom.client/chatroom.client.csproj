@@ -82,9 +82,10 @@
     <Compile Include="ViewModel\Asynchronous\SinglePassTaskRuntime.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\WorkspaceViewModel.cs" />
-    <Compile Include="Views\ChatRoomView.xaml.cs">
+    <Compile Include="View\ChatRoomView.xaml.cs">
       <DependentUpon>ChatRoomView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\Controller\DockPanelSplitter.xaml.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,7 +98,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\ChatRoomView.xaml">
+    <Page Include="View\ChatRoomView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Controller\DockPanelSplitter.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

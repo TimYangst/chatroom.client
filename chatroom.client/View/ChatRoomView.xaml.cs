@@ -12,8 +12,10 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using chatroom.client.Model;
 using System.Collections.Specialized;
+using chatroom.client.ViewModel;
+using chatroom.client;
 
-namespace chatroom.client
+namespace chatroom.client.View
 {
 	/// <summary>
 	/// ChatRoomView.xaml 的交互逻辑
@@ -22,6 +24,7 @@ namespace chatroom.client
 	{
 		public ChatRoomView()
 		{
+    
 			this.InitializeComponent();
             
             ListView list = this.FindName("m_MessageList") as ListView;
@@ -35,7 +38,15 @@ namespace chatroom.client
             listView.ScrollIntoView(listView.Items[listView.Items.Count - 1]);
         }
 
-
-      
+        private void m_message_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TextBox textBox = sender as TextBox;
+                ChatRoomViewModel viewmodel = textBox.DataContext as ChatRoomViewModel;
+                viewmodel.MessageToSend = textBox.Text;
+                viewmodel.CheckAndSendMessage();
+            }
+        }
 	}
 }

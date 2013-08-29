@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:chatroom.client.ViewModel"
-        xmlns:View="clr-namespace:chatroom.client"
-        Title="MainWindow" Height="810" Width="720">
+        xmlns:View="clr-namespace:chatroom.client.View"
+        Title="MainWindow" Height="810" Width="560">
 
 
     <Grid x:Name="LayoutRoot">
@@ -13,9 +13,6 @@
                     <MenuItem Header="_File">
                         <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
                     </MenuItem>
-                    <MenuItem Header="_Edit" />
-                    <MenuItem Header="_Options" />
-                    <MenuItem Header="_Help" />
                 </Menu>
             </DockPanel>
             <DockPanel DockPanel.Dock ="Top">
