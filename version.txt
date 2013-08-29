@@ -1,3 +1,4 @@
 version:
 0.0.1 : simple client to send message
 0.0.2 : add heart beat, send message and message history
+0.0.4 : support chinese, refactor structure, improve UI

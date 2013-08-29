@@ -13,8 +13,9 @@ using System.Collections.ObjectModel;
 using chatroom.client.Model;
 using System.Collections.Specialized;
 using chatroom.client.ViewModel;
+using chatroom.client;
 
-namespace chatroom.client
+namespace chatroom.client.View
 {
 	/// <summary>
 	/// ChatRoomView.xaml 的交互逻辑
@@ -23,6 +24,7 @@ namespace chatroom.client
 	{
 		public ChatRoomView()
 		{
+    
 			this.InitializeComponent();
             
             ListView list = this.FindName("m_MessageList") as ListView;
