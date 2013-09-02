@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 
+
 namespace chatroom.client
 {
     /// <summary>
@@ -18,7 +19,7 @@ namespace chatroom.client
         {
             this.MainWindow = new MainWindow();
             MainWindowViewModel MainWindowViewModel = new MainWindowViewModel();
-            EventHandler handler =null;
+            EventHandler handler = null;
             handler = delegate
             {
                 MainWindowViewModel.RequestClose -= handler;
@@ -27,7 +28,9 @@ namespace chatroom.client
             MainWindowViewModel.RequestClose += handler;
             MainWindow.DataContext = MainWindowViewModel;
             MainWindow.Show();
+
         }
+
     }
-    
+
 }

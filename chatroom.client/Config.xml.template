@@ -2,4 +2,5 @@
 <chatroom>
   <server>http://10.172.76.226:9999</server>
   <heartbeatinterval>5000</heartbeatinterval>
+  <updatecheckinterval>1800</updatecheckinterval>
 </chatroom>
