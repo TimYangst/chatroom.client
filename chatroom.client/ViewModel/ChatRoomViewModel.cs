@@ -54,7 +54,7 @@ namespace chatroom.client.ViewModel
 
             string rst = HttpRequestSender.sendRequest(
                 String.Format("{0}/heartbeat?lasttime={1}&username={2}",
-                    ConfigurationManager.ServerUrl, 
+                    ConfigurationManager.MessageServerUrl, 
                     LastSynchronizationTime,
                     ConfigurationManager.UserName), 
                 null,
@@ -178,7 +178,7 @@ namespace chatroom.client.ViewModel
             Dictionary<string, string> paras = new Dictionary<string, string>();
             paras["username"] = ConfigurationManager.UserName;
             paras["content"] = msg;
-            string rst = HttpRequestSender.sendRequest(String.Format("{0}/post",ConfigurationManager.ServerUrl), paras, "post");
+            string rst = HttpRequestSender.sendRequest(String.Format("{0}/post",ConfigurationManager.MessageServerUrl), paras, "post");
             return rst;
         }
 

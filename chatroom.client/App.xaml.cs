@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using chatroom.client.ViewModel.Update;
 
 
 namespace chatroom.client
@@ -17,6 +18,7 @@ namespace chatroom.client
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            
             this.MainWindow = new MainWindow();
             MainWindowViewModel MainWindowViewModel = new MainWindowViewModel();
             EventHandler handler = null;
@@ -29,6 +31,23 @@ namespace chatroom.client
             MainWindow.DataContext = MainWindowViewModel;
             MainWindow.Show();
 
+            UpdateChecker checker = new UpdateChecker();
+            checker.NeedUpdate += checker_NeedUpdate; 
+            checker.startUpdateDaemon();
+
+        }
+
+        private void checker_NeedUpdate(object sender, EventArgs e)
+        {
+            if (System.Windows.MessageBox.Show(App.Current.MainWindow, "已经完成新版本客户端下载，是否重启应用以完成更新?", "软件更新", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            {
+                //do shutdown app and run updater;
+
+            }
+            //if (System.Windows.MessageBox.Show(Application.Current.MainWindow, "已经生成过，确定重新生成吗?", " 确 定 ", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            //{
+
+            //}
         }
 
     }

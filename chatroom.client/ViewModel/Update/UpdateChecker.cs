@@ -6,6 +6,8 @@ using chatroom.client.ViewModel.Asynchronous;
 using chatroom.client.ViewModel.Configuration;
 using chatroom.client.ViewModel.Http;
 using System.Xml;
+using System.IO;
+using System.Net;
 
 namespace chatroom.client.ViewModel.Update
 {
@@ -13,8 +15,23 @@ namespace chatroom.client.ViewModel.Update
     {
 
         private IntervalTaskRuntime CheckUpdateRuntime;
+        
+        public event EventHandler NeedUpdate;
 
-        private void checkUpdateDaemon()
+        private string RemoteVersionNumber = "" ;
+
+        private string PackageFileName = "";
+
+        private void AskForUpdate(string arg)
+        {
+            if (arg == null)
+            {
+                EventHandler handler = this.NeedUpdate;
+                if (handler != null) handler(this, EventArgs.Empty);
+            }
+        }
+
+        public void startUpdateDaemon()
         { 
             DateTime StartTime = DateTime.Now.AddSeconds(15);
             TimeSpan Interval = TimeSpan.FromSeconds(ConfigurationManager.UpdateCheckInterval);
@@ -23,7 +40,7 @@ namespace chatroom.client.ViewModel.Update
 
         private string getRemoteVersion()
         {
-            return HttpRequestSender.sendRequest(ConfigurationManager.ServerUrl + "/update/version.txt", null, "GET");
+            return HttpRequestSender.sendRequest(ConfigurationManager.UpdateServerUrl + "/update/version.xml", null, "GET");
         }
 
         /*
@@ -35,36 +52,87 @@ namespace chatroom.client.ViewModel.Update
          */
         private void getVersionCallback(String versionXml)
         {
-            string remoteversion = getRemoteVersionNumber(versionXml);
+            ParseRemoteXml(versionXml);
             string localversion = getLocalVersionNumber();
-            if (remoteversion == "") return;
-            if (CheckUtils.CompareVersion(remoteversion, localversion))
+            if (CheckUtils.CompareVersion(RemoteVersionNumber, localversion)) // step 2
             {
-
+                if (PackageAlreadyDownload())
+                {
+                    AskForUpdate(null);
+                }
+                else 
+                {
+                    AsyncTaskExecuter.ExecuteTask(DownloadThePackage, AskForUpdate);
+                }
             }
-
+            else return;
         }
 
-      
-
-        #region GetVersionNumber
-
-        private string getRemoteVersionNumber(String versionXml)
+        private void ParseRemoteXml(String versionXml)
         {
-            if (versionXml == null || versionXml == "") return "";
+            if (versionXml == null || versionXml == "") return ;
             try
             {
                 XmlDocument remoteXml = new XmlDocument();
                 remoteXml.LoadXml(versionXml);
-                return getVersionNumber(remoteXml);
+                
+                RemoteVersionNumber = getVersionNumber(remoteXml);
+                PackageFileName = getFileName(remoteXml);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
-                return "";
+                return ;
             }
         }
 
+        private string DownloadThePackage()
+        {
+            WebClient webClient = new WebClient();
+            string packageUrl = ConfigurationManager.UpdateServerUrl + "/update/" + PackageFileName;
+            try
+            {
+                webClient.DownloadFile(packageUrl, "downloads/" + PackageFileName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                return "Download package error.";
+            }
+            try
+            {
+                webClient.DownloadFile(ConfigurationManager.UpdateServerUrl + "/update/version.xml", "downloads/version.xml");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                return "Download version.xml error.";
+            }
+
+            return null;
+        }
+
+        private bool PackageAlreadyDownload()
+        {
+            if (!File.Exists("downloads/version.xml")) return false;
+            XmlDocument document = new XmlDocument();
+            document.Load("downloads/version.xml");
+            string dVersionNumber = getVersionNumber(document);
+            if (dVersionNumber != RemoteVersionNumber) return false;
+            if (PackageFileName == "") return false;
+            return File.Exists("downloads/"+PackageFileName);
+        }
+
+
+        #region GetInfoFromXml
+
+        private string getFileName(XmlDocument doc)
+        {
+            XmlNode node = doc.SelectSingleNode("filename");
+            if (node == null) return "";
+            return node.InnerText.Trim();
+        }
+    
         private string getLocalVersionNumber()
         {
             try

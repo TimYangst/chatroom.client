@@ -10,17 +10,27 @@ namespace chatroom.client.ViewModel.Configuration
     {
         private static string CONFIG_FILE_PATH = "Config.xml";
 
-        private static string SERVERURL = "server";
+        private static string MESSAGESERVERURL = "messageserver";
         private static string HEARTBEATINTERVAL = "heartbeatinterval";
         private static string UPDATECHECKINTERVAL = "updatecheckinterval";
+        private static string UPDATESERVERURL = "updateserver";
 
         private static Dictionary<string, string> PropertiesTable = new Dictionary<string, string>();
 
+        public static string UpdateServerUrl {
+            get 
+            {
+                string outstring = "";
+                if (PropertiesTable.TryGetValue(UPDATESERVERURL,out outstring))
+                    return outstring;
+                return "";
+            }
+        }
 
-        public static string ServerUrl
+        public static string MessageServerUrl
         {
             get { string outstring = "";
-                if (PropertiesTable.TryGetValue(SERVERURL,out outstring)) 
+                if (PropertiesTable.TryGetValue(MESSAGESERVERURL,out outstring)) 
                     return outstring;
                 return "";
             }
