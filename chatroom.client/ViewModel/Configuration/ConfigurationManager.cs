@@ -10,22 +10,57 @@ namespace chatroom.client.ViewModel.Configuration
     {
         private static string CONFIG_FILE_PATH = "Config.xml";
 
-        private static string _serverUrl = "";
-        public static string ServerUrl
-        {
-            get { return _serverUrl; }
+        private static string MESSAGESERVERURL = "messageserver";
+        private static string HEARTBEATINTERVAL = "heartbeatinterval";
+        private static string UPDATECHECKINTERVAL = "updatecheckinterval";
+        private static string UPDATESERVERURL = "updateserver";
+
+        private static Dictionary<string, string> PropertiesTable = new Dictionary<string, string>();
+
+        public static string UpdateServerUrl {
+            get 
+            {
+                string outstring = "";
+                if (PropertiesTable.TryGetValue(UPDATESERVERURL,out outstring))
+                    return outstring;
+                return "";
+            }
         }
 
-        private static int _heartBeatInterval = 2000;
+        public static string MessageServerUrl
+        {
+            get { string outstring = "";
+                if (PropertiesTable.TryGetValue(MESSAGESERVERURL,out outstring)) 
+                    return outstring;
+                return "";
+            }
+        }
+
         public static int HeartBeatInterval 
         {
-            get { return _heartBeatInterval;  }
+            get {
+                string outstring = "";
+                if (PropertiesTable.TryGetValue(HEARTBEATINTERVAL,out outstring))
+                {
+                    return int.Parse(outstring);
+                }
+                else return 5000;
+            }
         }
 
-        private static string _userName = "unknow";
         public static string UserName {
-            get { return _userName;  }
+            get { return System.Environment.UserName; }
         }
+
+        public static int UpdateCheckInterval 
+        {
+            get { string  outstring;
+                if  (PropertiesTable.TryGetValue(UPDATECHECKINTERVAL, out  outstring)) return int.Parse(outstring);
+                return 1800;
+            }
+        }
+
+        #region initial
 
         public static void LoadConfigFile()
         {
@@ -39,12 +74,7 @@ namespace chatroom.client.ViewModel.Configuration
                 XmlNode root = xmlDoc.SelectSingleNode("chatroom");
                 foreach(XmlNode node in root.ChildNodes){
                     XmlElement ele = node as XmlElement;
-                    if (ele.Name == "server") {
-                        _serverUrl = ele.InnerText.Trim();
-                    }
-                    else if (ele.Name == "heartbeatinterval") {
-                        _heartBeatInterval = int.Parse(ele.InnerText.Trim());
-                    }
+                    PropertiesTable.Add(ele.Name, ele.InnerText.Trim());
                 }
             }
             catch (Exception e)
@@ -55,15 +85,11 @@ namespace chatroom.client.ViewModel.Configuration
             }
 
         }
-        public static void GetEnvironmentArguements()
-        {
-            _userName = System.Environment.UserName;
-        }
 
         static ConfigurationManager(){
-            GetEnvironmentArguements();
             LoadConfigFile();
         }
 
+        #endregion
     }
 }

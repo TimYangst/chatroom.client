@@ -52,6 +52,17 @@
   <ItemGroup>
     <Compile Include="DllLoadTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\Update\VersionCompareTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\chatroom.client\chatroom.client.csproj">
+      <Project>{55994a31-9433-426d-8c12-ecf2e52d1110}</Project>
+      <Name>chatroom.client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Update\Update.csproj">
+      <Project>{77a5f09f-6dde-4e0c-a150-45769fe3092f}</Project>
+      <Name>Update</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
