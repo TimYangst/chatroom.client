@@ -33,7 +33,7 @@ namespace chatroom.client.Update
                         {
                             ZipUtils.UnZip("downloads/" + dfilename);
                             File.Delete("downloads/" + dfilename);
-                            if (File.Exists("downloads/version.xml")) File.Delete("downloads/version.xml");
+                            if (File.Exists("version.xml")) File.Delete("version.xml");
                             File.Move("downloads/version.xml", "version.xml");
                         }
                         catch (Exception ze)
